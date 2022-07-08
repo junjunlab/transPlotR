@@ -13,7 +13,7 @@
 #' @param relTextDist Transcripts name or gene name relative to exon, default(0.3).
 #' @param intronSize Intron line size, default(0.5).
 #' @param arrowBreak How many gap distance to draw arrows, the smaller the more arrows, default(0.15).
-#' @param exonColorByTrans Whether color group by transcripts, default(FALSE).
+#' @param exonColorBy Whether color group by "transcript_id" or "gene_name", default(NULL).
 #' @param exonFill Exon fill color, default('#333399').
 #' @param circle Whether make plot into a circle plot, default(FALSE).
 #' @param cicStart Circle plot start position, default(pi).
@@ -90,7 +90,7 @@
 #' # color aes by transcript
 #' trancriptVis(gtfFile = gtf,
 #'              gene = 'Tpx2',
-#'              exonColorByTrans = TRUE)
+#'              exonColorBy = 'transcript_id')
 #'
 #' # change arrow color and type
 #' trancriptVis(gtfFile = gtf,
@@ -143,7 +143,7 @@ trancriptVis <- function(gtfFile = NULL,
                          relTextDist = 0.3,
                          intronSize = 0.5,
                          arrowBreak = 0.15,
-                         exonColorByTrans = FALSE,
+                         exonColorBy = NULL,
                          exonFill = '#333399',
                          circle = FALSE,
                          cicStart = pi,
@@ -282,7 +282,7 @@ trancriptVis <- function(gtfFile = NULL,
 
   ##############################################################################
   # first layer
-  if(exonColorByTrans == FALSE){
+  if(is.null(exonColorBy)){
     p1 <- ggplot2::ggplot(exon) +
       ggplot2::geom_rect(ggplot2::aes_(xmin = ~start,xmax = ~end,
                                        ymin = ~ymin,ymax = ~ymax),
@@ -291,7 +291,7 @@ trancriptVis <- function(gtfFile = NULL,
     p1 <- ggplot2::ggplot(exon) +
       ggplot2::geom_rect(ggplot2::aes_(xmin = ~start,xmax = ~end,
                                        ymin = ~ymin,ymax = ~ymax,
-                                       fill = ~transcript_id),
+                                       fill = ~get(exonColorBy)),
                          show.legend = F)
   }
 

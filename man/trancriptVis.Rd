@@ -26,7 +26,7 @@
 
 \item{arrowBreak}{How many gap distance to draw arrows, the smaller the more arrows, default(0.15).}
 
-\item{exonColorByTrans}{Whether color group by transcripts, default(FALSE).}
+\item{exonColorBy}{Whether color group by "transcript_id" or "gene_name", default(NULL).}
 
 \item{exonFill}{Exon fill color, default('#333399').}
 
@@ -133,7 +133,7 @@ trancriptVis(gtfFile = gtf,
 # color aes by transcript
 trancriptVis(gtfFile = gtf,
              gene = 'Tpx2',
-             exonColorByTrans = TRUE)
+             exonColorBy = 'transcript_id')
 
 # change arrow color and type
 trancriptVis(gtfFile = gtf,
