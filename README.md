@@ -34,4 +34,4 @@ trancriptVis(gtfFile = gtf,
 
 ## More examples
 
-> **https://github.com/junjunlab/transPlotR/wiki**
+> - **https://github.com/junjunlab/transPlotR/wiki**
