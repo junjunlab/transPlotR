@@ -27,6 +27,7 @@
 #' @param arrowType Normal arrow type, default('open').
 #' @param addNormalArrow Whether add normal arrow on plot, default(TRUE).
 #' @param newStyleArrow Whether add new style arrow on plot, default(FALSE).
+#' @param absSpecArrowLen Whether make new style arrow length to be relative to each transcript length or absolute length to the longest transcript, default(FALSE).
 #' @param speArrowRelPos The relative position to the transcript on horizontal direction of new style arrow, default(0).
 #' @param speArrowRelLen The relative length to the transcript length of new style arrow, default(0.05).
 #' @param speArrowStart The new style arrow start position on the vertical direction, default(-0.15).
@@ -157,6 +158,7 @@ trancriptVis <- function(gtfFile = NULL,
                          arrowType = 'open',
                          addNormalArrow = TRUE,
                          newStyleArrow = FALSE,
+                         absSpecArrowLen = FALSE,
                          speArrowRelPos = 0,
                          speArrowRelLen = 0.05,
                          speArrowStart = -0.15,
@@ -243,7 +245,8 @@ trancriptVis <- function(gtfFile = NULL,
   ##############################################################################
   # extarct data
   exon <- mul_exon_ypos %>% dplyr::filter(type != 'transcript')
-  trans <- mul_exon_ypos %>% dplyr::filter(type == 'transcript')
+  trans <- mul_exon_ypos %>% dplyr::filter(type == 'transcript') %>%
+    dplyr::arrange(dplyr::desc(width))
 
   # add text x/y pos
   trans$textX <- ifelse(trans$strand == '+',trans$start + trans$width/2,
@@ -258,17 +261,38 @@ trancriptVis <- function(gtfFile = NULL,
     # add special arrow
     purrr::map_df(trans$transcript_id,function(x){
       tmp <- trans %>% dplyr::filter(transcript_id == x)
+
       # test strand
-      if(tmp$strand == '+'){
-        tmp <- tmp %>% dplyr::mutate(vl_x1 = start + speArrowRelPos*width,
-                                     vl_x2 = vl_x1 + speArrowRelLen*width,
-                                     vl_y1 = yPos + speArrowStart,
-                                     vl_y2 = yPos + speArrowStart*speArrowRelHigh)
-      }else if(tmp$strand == '-'){
-        tmp <- tmp %>% dplyr::mutate(vl_x1 = end - speArrowRelPos*width,
-                                     vl_x2 = vl_x1 - speArrowRelLen*width,
-                                     vl_y1 = yPos + speArrowStart,
-                                     vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+      if(absSpecArrowLen == TRUE){
+        # add absolute specArrow
+
+        # define longest transcript length
+        longestWidth = trans$width[1]
+
+        if(tmp$strand == '+'){
+          tmp <- tmp %>% dplyr::mutate(vl_x1 = start + speArrowRelPos*width,
+                                       vl_x2 = vl_x1 + speArrowRelLen*longestWidth,
+                                       vl_y1 = yPos + speArrowStart,
+                                       vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+        }else if(tmp$strand == '-'){
+          tmp <- tmp %>% dplyr::mutate(vl_x1 = end - speArrowRelPos*width,
+                                       vl_x2 = vl_x1 - speArrowRelLen*longestWidth,
+                                       vl_y1 = yPos + speArrowStart,
+                                       vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+        }
+      }else{
+        # add relative specArrow
+        if(tmp$strand == '+'){
+          tmp <- tmp %>% dplyr::mutate(vl_x1 = start + speArrowRelPos*width,
+                                       vl_x2 = vl_x1 + speArrowRelLen*width,
+                                       vl_y1 = yPos + speArrowStart,
+                                       vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+        }else if(tmp$strand == '-'){
+          tmp <- tmp %>% dplyr::mutate(vl_x1 = end - speArrowRelPos*width,
+                                       vl_x2 = vl_x1 - speArrowRelLen*width,
+                                       vl_y1 = yPos + speArrowStart,
+                                       vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+        }
       }
       return(tmp)
     }) -> arrow_trans

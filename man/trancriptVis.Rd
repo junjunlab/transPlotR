@@ -54,6 +54,8 @@
 
 \item{newStyleArrow}{Whether add new style arrow on plot, default(FALSE).}
 
+\item{absSpecArrowLen}{Whether make new style arrow length to be relative to each transcript length or absolute length to the longest transcript, default(FALSE).}
+
 \item{speArrowRelPos}{The relative position to the transcript on horizontal direction of new style arrow, default(0).}
 
 \item{speArrowRelLen}{The relative length to the transcript length of new style arrow, default(0.05).}
