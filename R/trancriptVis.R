@@ -362,11 +362,11 @@ trancriptVis <- function(gtfFile = NULL,
                                                                   type = arrowType)))
     }else{
       p3 <- p2 +
-        ggarchery::geom_arrowsegment(data = arrow_trans,
-                                     ggplot2::aes_(x = ~start,xend = ~end,
-                                                   y = ~yPos,yend = ~yPos),
-                                     color = arrowCol,
-                                     size = intronSize)
+        ggplot2::geom_segment(data = arrow_trans,
+                              ggplot2::aes_(x = ~start,xend = ~end,
+                                            y = ~yPos,yend = ~yPos),
+                              color = arrowCol,
+                              size = intronSize)
     }
   }else{
     # add arrow and segment line geom_segment
