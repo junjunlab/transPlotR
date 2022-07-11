@@ -91,6 +91,14 @@
 \item{facetByGene}{Whether facet by gene to plot, this useful for your genes which are far away from each other or not located on the same chromosome, default(FALSE).}
 
 \item{ncolGene}{The column numbers to plot, default(NULL).}
+
+\item{scales}{Facet plot scales, same as "facet_wrap" function, default('free').}
+
+\item{strip.position}{Facet plot strip.position, same as "facet_wrap" function, default('top').}
+
+\item{forcePosRel}{Whether force the genome coordinate to relative position to transcript start/end position, default('FALSE').}
+
+\item{panel.spacing}{Facet plot panel space, default(0.3).}
 }
 \value{
 ggplot object.

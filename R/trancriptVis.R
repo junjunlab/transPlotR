@@ -46,6 +46,10 @@
 #' @param aspect.ratio Plot ratio, default(NULL).
 #' @param facetByGene Whether facet by gene to plot, this useful for your genes which are far away from each other or not located on the same chromosome, default(FALSE).
 #' @param ncolGene The column numbers to plot, default(NULL).
+#' @param scales Facet plot scales, same as "facet_wrap" function, default('free').
+#' @param strip.position Facet plot strip.position, same as "facet_wrap" function, default('top').
+#' @param forcePosRel Whether force the genome coordinate to relative position to transcript start/end position, default('FALSE').
+#' @param panel.spacing Facet plot panel space, default(0.3).
 #'
 #' @import tidyverse
 #'
@@ -178,7 +182,11 @@ trancriptVis <- function(gtfFile = NULL,
                          marginY = 10,
                          aspect.ratio = NULL,
                          facetByGene = FALSE,
-                         ncolGene = NULL){
+                         ncolGene = NULL,
+                         scales = 'free',
+                         strip.position = 'top',
+                         forcePosRel = FALSE,
+                         panel.spacing = 0.3){
   ##############################################################################
   # test whether with a given specific gene or region
   if(is.null(gene)){
@@ -247,9 +255,33 @@ trancriptVis <- function(gtfFile = NULL,
   }
 
   ##############################################################################
+  # whether transform coordinate
+  if(forcePosRel == TRUE){
+    purrr::map_df(gene,function(x){
+      tmp <- mul_exon_ypos %>%
+        dplyr::filter(gene_name == x)
+      purrr::map_df(unique(tmp$transcript_id),function(t){
+        tmp1 <- tmp %>% dplyr::filter(transcript_id == t) %>%
+          dplyr::arrange(start,end)
+
+        # start coord
+        startPos <- tmp1$start[1]
+
+        # add new pos
+        tmp1 <- tmp1 %>% dplyr::mutate(start = start - startPos,
+                                       end = end - startPos)
+        return(tmp1)
+      }) -> relPos_tmp
+      return(relPos_tmp)
+    }) -> exonNewPos
+  }else{
+    exonNewPos <- mul_exon_ypos
+  }
+
+  ##############################################################################
   # extarct data
-  exon <- mul_exon_ypos %>% dplyr::filter(type != 'transcript')
-  trans <- mul_exon_ypos %>% dplyr::filter(type == 'transcript')
+  exon <- exonNewPos %>% dplyr::filter(type != 'transcript')
+  trans <- exonNewPos %>% dplyr::filter(type == 'transcript')
 
   # add text x/y pos
   trans$textX <- ifelse(trans$strand == '+',trans$start + trans$width/2,
@@ -469,7 +501,10 @@ trancriptVis <- function(gtfFile = NULL,
 
     # facet
     p3 <- p3_tmp +
-      ggplot2::facet_wrap(facets = "gene_name",scales = 'free',ncol = ncol)
+      ggplot2::facet_wrap(facets = "gene_name",
+                          scales = scales,
+                          ncol = ncol,
+                          strip.position = strip.position)
   }
 
   ##############################################################################
@@ -518,11 +553,22 @@ trancriptVis <- function(gtfFile = NULL,
   if(facetByGene == TRUE){
     p6 <- p5 +
       ggplot2::theme(strip.text.x = ggplot2::element_text(size = base_size + 2),
-                     strip.background = ggplot2::element_rect(fill = 'grey90'))
+                     strip.background = ggplot2::element_rect(fill = 'grey90'),
+                     panel.spacing = ggplot2::unit(panel.spacing,'cm'))
   }else{
     p6 <- p5
   }
-  return(p6)
+
+  ##############################################################################
+  # xlabel
+  if(forcePosRel == TRUE){
+    p7 <- p6 +
+      ggplot2::xlab('Positions on genome')
+  }else{
+    p7 <- p6 +
+      ggplot2::xlab('Relative position to start/end')
+  }
+  return(p7)
 }
 
 ###############################
