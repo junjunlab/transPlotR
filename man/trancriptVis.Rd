@@ -87,6 +87,10 @@
 \item{marginY}{Plot top and bottomn margins, default(0.2).}
 
 \item{aspect.ratio}{Plot ratio, default(NULL).}
+
+\item{facetByGene}{Whether facet by gene to plot, this useful for your genes which are far away from each other or not located on the same chromosome, default(FALSE).}
+
+\item{ncolGene}{The column numbers to plot, default(NULL).}
 }
 \value{
 ggplot object.

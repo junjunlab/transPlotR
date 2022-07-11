@@ -6,7 +6,7 @@
 \title{This is a test data for this package
 test data describtion}
 \format{
-An object of class \code{data.frame} with 1412 rows and 31 columns.
+An object of class \code{data.frame} with 1987 rows and 31 columns.
 }
 \usage{
 gtf

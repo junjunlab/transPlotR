@@ -44,6 +44,8 @@
 #' @param marginX Plot left and right margins, default(0.2).
 #' @param marginY Plot top and bottomn margins, default(0.2).
 #' @param aspect.ratio Plot ratio, default(NULL).
+#' @param facetByGene Whether facet by gene to plot, this useful for your genes which are far away from each other or not located on the same chromosome, default(FALSE).
+#' @param ncolGene The column numbers to plot, default(NULL).
 #'
 #' @import tidyverse
 #'
@@ -128,7 +130,7 @@
 
 # global variables
 globalVariables(c('end', 'gene_biotype', 'gene_id', 'gene_name','seqnames',
-                  'start', 'strand','transcript_id', 'type', 'vl_x1' ,'width', 'yPos'))
+                  'start', 'strand','transcript_id','transcript_name', 'type', 'vl_x1' ,'width', 'yPos'))
 
 # use_package("tidyverse", type = "depends")
 
@@ -172,9 +174,11 @@ trancriptVis <- function(gtfFile = NULL,
                          textLabelSize = 5,
                          textLabelColor = 'black',
                          base_size = 14,
-                         marginX = 0.2,
-                         marginY = 0.2,
-                         aspect.ratio = NULL){
+                         marginX = 10,
+                         marginY = 10,
+                         aspect.ratio = NULL,
+                         facetByGene = FALSE,
+                         ncolGene = NULL){
   ##############################################################################
   # test whether with a given specific gene or region
   if(is.null(gene)){
@@ -182,13 +186,13 @@ trancriptVis <- function(gtfFile = NULL,
     myGene <- gtfFile %>%
       dplyr::filter(seqnames == Chr & start >= posStart & end <= posEnd) %>%
       dplyr::filter(type != 'gene') %>%
-      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,gene_biotype,transcript_id)
+      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,gene_biotype,transcript_id,transcript_name)
   }else{
     # filter gene by gene name
     myGene <- gtfFile %>%
       dplyr::filter(gene_name %in% gene) %>%
       dplyr::filter(type != 'gene') %>%
-      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,gene_biotype,transcript_id)
+      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,gene_biotype,transcript_id,transcript_name)
   }
 
   ##############################################################################
@@ -245,8 +249,7 @@ trancriptVis <- function(gtfFile = NULL,
   ##############################################################################
   # extarct data
   exon <- mul_exon_ypos %>% dplyr::filter(type != 'transcript')
-  trans <- mul_exon_ypos %>% dplyr::filter(type == 'transcript') %>%
-    dplyr::arrange(dplyr::desc(width))
+  trans <- mul_exon_ypos %>% dplyr::filter(type == 'transcript')
 
   # add text x/y pos
   trans$textX <- ifelse(trans$strand == '+',trans$start + trans$width/2,
@@ -258,43 +261,49 @@ trancriptVis <- function(gtfFile = NULL,
   if(newStyleArrow == FALSE){
     arrow_trans <- trans
   }else{
-    # add special arrow
-    purrr::map_df(trans$transcript_id,function(x){
-      tmp <- trans %>% dplyr::filter(transcript_id == x)
+    purrr::map_df(gene,function(gen){
+      genTrans <- trans %>% dplyr::filter(gene_name == gen) %>%
+        dplyr::arrange(dplyr::desc(width))
 
-      # test strand
-      if(absSpecArrowLen == TRUE){
-        # add absolute specArrow
+      # define longest transcript length
+      longestWidth = genTrans$width[1]
 
-        # define longest transcript length
-        longestWidth = trans$width[1]
+      # add special arrow
+      purrr::map_df(genTrans$transcript_id,function(x){
+        tmp <- genTrans %>%
+          dplyr::filter(transcript_id == x)
 
-        if(tmp$strand == '+'){
-          tmp <- tmp %>% dplyr::mutate(vl_x1 = start + speArrowRelPos*width,
-                                       vl_x2 = vl_x1 + speArrowRelLen*longestWidth,
-                                       vl_y1 = yPos + speArrowStart,
-                                       vl_y2 = yPos + speArrowStart*speArrowRelHigh)
-        }else if(tmp$strand == '-'){
-          tmp <- tmp %>% dplyr::mutate(vl_x1 = end - speArrowRelPos*width,
-                                       vl_x2 = vl_x1 - speArrowRelLen*longestWidth,
-                                       vl_y1 = yPos + speArrowStart,
-                                       vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+        # test strand
+        if(absSpecArrowLen == TRUE){
+          # add absolute specArrow
+          if(tmp$strand == '+'){
+            tmp <- tmp %>% dplyr::mutate(vl_x1 = start + speArrowRelPos*width,
+                                         vl_x2 = vl_x1 + speArrowRelLen*longestWidth,
+                                         vl_y1 = yPos + speArrowStart,
+                                         vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+          }else if(tmp$strand == '-'){
+            tmp <- tmp %>% dplyr::mutate(vl_x1 = end - speArrowRelPos*width,
+                                         vl_x2 = vl_x1 - speArrowRelLen*longestWidth,
+                                         vl_y1 = yPos + speArrowStart,
+                                         vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+          }
+        }else{
+          # add relative specArrow
+          if(tmp$strand == '+'){
+            tmp <- tmp %>% dplyr::mutate(vl_x1 = start + speArrowRelPos*width,
+                                         vl_x2 = vl_x1 + speArrowRelLen*width,
+                                         vl_y1 = yPos + speArrowStart,
+                                         vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+          }else if(tmp$strand == '-'){
+            tmp <- tmp %>% dplyr::mutate(vl_x1 = end - speArrowRelPos*width,
+                                         vl_x2 = vl_x1 - speArrowRelLen*width,
+                                         vl_y1 = yPos + speArrowStart,
+                                         vl_y2 = yPos + speArrowStart*speArrowRelHigh)
+          }
         }
-      }else{
-        # add relative specArrow
-        if(tmp$strand == '+'){
-          tmp <- tmp %>% dplyr::mutate(vl_x1 = start + speArrowRelPos*width,
-                                       vl_x2 = vl_x1 + speArrowRelLen*width,
-                                       vl_y1 = yPos + speArrowStart,
-                                       vl_y2 = yPos + speArrowStart*speArrowRelHigh)
-        }else if(tmp$strand == '-'){
-          tmp <- tmp %>% dplyr::mutate(vl_x1 = end - speArrowRelPos*width,
-                                       vl_x2 = vl_x1 - speArrowRelLen*width,
-                                       vl_y1 = yPos + speArrowStart,
-                                       vl_y2 = yPos + speArrowStart*speArrowRelHigh)
-        }
-      }
-      return(tmp)
+        return(tmp)
+      }) -> arrow_trans1
+      return(arrow_trans1)
     }) -> arrow_trans
   }
 
@@ -344,51 +353,123 @@ trancriptVis <- function(gtfFile = NULL,
 
 
   ##############################################################################
-  # whether draw ploar plot
-  if(circle == FALSE){
-    # add arrow and segment line with geom_arrowsegment
-    if(addNormalArrow == TRUE){
-      p3 <- p2 +
-        ggarchery::geom_arrowsegment(data = arrow_trans,
-                                     ggplot2::aes_(x = ~start,xend = ~end,
-                                                   y = ~yPos,yend = ~yPos),
-                                     color = arrowCol,
-                                     size = intronSize,
-                                     arrow_positions = arrow_seq,
-                                     arrow_fills = rep(arrowCol,length(arrow_seq)),
-                                     arrows = list(ggplot2::arrow(angle = arrowAngle,
-                                                                  length = ggplot2::unit(arrowLength, "inches"),
-                                                                  ends = arrow_trans$ad,
-                                                                  type = arrowType)))
+  # whether facet by gene when gene far away each other or not on same chromosome
+  if(facetByGene == FALSE){
+    # whether draw ploar plot
+    if(circle == FALSE){
+      # add arrow and segment line with geom_arrowsegment
+      if(addNormalArrow == TRUE){
+        p3 <- p2 +
+          ggarchery::geom_arrowsegment(data = arrow_trans,
+                                       ggplot2::aes_(x = ~start,xend = ~end,
+                                                     y = ~yPos,yend = ~yPos),
+                                       color = arrowCol,
+                                       size = intronSize,
+                                       arrow_positions = arrow_seq,
+                                       arrow_fills = rep(arrowCol,length(arrow_seq)),
+                                       arrows = list(ggplot2::arrow(angle = arrowAngle,
+                                                                    length = ggplot2::unit(arrowLength, "inches"),
+                                                                    ends = arrow_trans$ad,
+                                                                    type = arrowType)))
+      }else{
+        p3 <- p2 +
+          ggplot2::geom_segment(data = arrow_trans,
+                                ggplot2::aes_(x = ~start,xend = ~end,
+                                              y = ~yPos,yend = ~yPos),
+                                color = arrowCol,
+                                size = intronSize)
+      }
     }else{
-      p3 <- p2 +
-        ggplot2::geom_segment(data = arrow_trans,
-                              ggplot2::aes_(x = ~start,xend = ~end,
-                                            y = ~yPos,yend = ~yPos),
-                              color = arrowCol,
-                              size = intronSize)
+      # add arrow and segment line geom_segment
+      if(addNormalArrow == TRUE){
+        p3 <- p2 +
+          ggplot2::geom_segment(data = arrow_trans,
+                                ggplot2::aes_(x = ~start,xend = ~end,
+                                              y = ~yPos,yend = ~yPos),
+                                color = circSegCol,
+                                size = intronSize,
+                                arrow = ggplot2::arrow(angle = arrowAngle,
+                                                       length = ggplot2::unit(arrowLength, "inches"),
+                                                       ends = arrow_trans$ad,
+                                                       type = arrowType))
+      }else{
+        p3 <- p2 +
+          ggplot2::geom_segment(data = arrow_trans,
+                                ggplot2::aes_(x = ~start,xend = ~end,
+                                              y = ~yPos,yend = ~yPos),
+                                color = circSegCol,
+                                size = intronSize)
+      }
     }
   }else{
-    # add arrow and segment line geom_segment
-    if(addNormalArrow == TRUE){
-      p3 <- p2 +
-        ggplot2::geom_segment(data = arrow_trans,
-                              ggplot2::aes_(x = ~start,xend = ~end,
-                                            y = ~yPos,yend = ~yPos),
-                              color = circSegCol,
-                              size = intronSize,
-                              arrow = ggplot2::arrow(angle = arrowAngle,
-                                                     length = ggplot2::unit(arrowLength, "inches"),
-                                                     ends = arrow_trans$ad,
-                                                     type = arrowType))
+    # define columns to facet
+    if(is.null(ncolGene)){
+      ncol = length(gene)
     }else{
-      p3 <- p2 +
-        ggplot2::geom_segment(data = arrow_trans,
-                              ggplot2::aes_(x = ~start,xend = ~end,
-                                            y = ~yPos,yend = ~yPos),
-                              color = circSegCol,
-                              size = intronSize)
+      ncol = ncolGene
     }
+    # facet plot
+
+    # whether draw ploar plot
+    if(circle == FALSE){
+      # add arrow and segment line with geom_arrowsegment
+      if(addNormalArrow == TRUE){
+        # loop add arrow
+        for (g in gene) {
+          tmpTrans <- arrow_trans %>% dplyr::filter(gene_name == g)
+          p2 <- p2 +
+            ggarchery::geom_arrowsegment(data = tmpTrans,
+                                         ggplot2::aes_(x = ~start,xend = ~end,
+                                                       y = ~yPos,yend = ~yPos),
+                                         color = arrowCol,
+                                         size = intronSize,
+                                         arrow_positions = arrow_seq,
+                                         arrow_fills = rep(arrowCol,length(arrow_seq)),
+                                         arrows = list(ggplot2::arrow(angle = arrowAngle,
+                                                                      length = ggplot2::unit(arrowLength, "inches"),
+                                                                      ends = tmpTrans$ad,
+                                                                      type = arrowType)))
+        }
+        p3_tmp <- p2
+      }else{
+        p3_tmp <- p2 +
+          ggplot2::geom_segment(data = arrow_trans,
+                                ggplot2::aes_(x = ~start,xend = ~end,
+                                              y = ~yPos,yend = ~yPos),
+                                color = arrowCol,
+                                size = intronSize)
+      }
+    }else{
+      # add arrow and segment line geom_segment
+      if(addNormalArrow == TRUE){
+        # loop add arrow
+        for (g in gene) {
+          tmpTrans <- arrow_trans %>% dplyr::filter(gene_name == g)
+          p2 <- p2 +
+            ggplot2::geom_segment(data = tmpTrans,
+                                  ggplot2::aes_(x = ~start,xend = ~end,
+                                                y = ~yPos,yend = ~yPos),
+                                  color = circSegCol,
+                                  size = intronSize,
+                                  arrow = ggplot2::arrow(angle = arrowAngle,
+                                                         length = ggplot2::unit(arrowLength, "inches"),
+                                                         ends = tmpTrans$ad,
+                                                         type = arrowType))
+        }
+        p3_tmp <- p2
+      }else{
+        p3_tmp <- p2 +
+          ggplot2::geom_segment(data = arrow_trans,
+                                ggplot2::aes_(x = ~start,xend = ~end,
+                                              y = ~yPos,yend = ~yPos),
+                                color = circSegCol,
+                                size = intronSize)
+      }
+    }
+
+    # facet
+    p3 <- p3_tmp +
+      ggplot2::facet_wrap(facets = "gene_name",scales = 'free',ncol = ncol)
   }
 
   ##############################################################################
@@ -431,7 +512,17 @@ trancriptVis <- function(gtfFile = NULL,
     p5 <- p4 +
       ggplot2::theme(aspect.ratio = aspect.ratio)
   }
-  return(p5)
+
+  ##############################################################################
+  # facet background
+  if(facetByGene == TRUE){
+    p6 <- p5 +
+      ggplot2::theme(strip.text.x = ggplot2::element_text(size = base_size + 2),
+                     strip.background = ggplot2::element_rect(fill = 'grey90'))
+  }else{
+    p6 <- p5
+  }
+  return(p6)
 }
 
 ###############################
