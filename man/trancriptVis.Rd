@@ -99,9 +99,11 @@
 \item{forcePosRel}{Whether force the genome coordinate to relative position to transcript start/end position, default('FALSE').}
 
 \item{panel.spacing}{Facet plot panel space, default(0.3).}
+
+\item{revNegStrand}{Whether reverse the negtive strand when set "forcePosRel=TRUE", default('FALSE').}
 }
 \value{
-ggplot object.
+A ggplot object.
 }
 \description{
 This package is to visualize gene diffrent isoforms.

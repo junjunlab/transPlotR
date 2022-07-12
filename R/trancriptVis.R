@@ -50,10 +50,11 @@
 #' @param strip.position Facet plot strip.position, same as "facet_wrap" function, default('top').
 #' @param forcePosRel Whether force the genome coordinate to relative position to transcript start/end position, default('FALSE').
 #' @param panel.spacing Facet plot panel space, default(0.3).
+#' @param revNegStrand Whether reverse the negtive strand when set "forcePosRel=TRUE", default('FALSE').
 #'
 #' @import tidyverse
 #'
-#' @return ggplot object.
+#' @return A ggplot object.
 #'
 #' @export
 #' @examples
@@ -186,7 +187,8 @@ trancriptVis <- function(gtfFile = NULL,
                          scales = 'free',
                          strip.position = 'top',
                          forcePosRel = FALSE,
-                         panel.spacing = 0.3){
+                         panel.spacing = 0.3,
+                         revNegStrand = FALSE){
   ##############################################################################
   # test whether with a given specific gene or region
   if(is.null(gene)){
@@ -264,12 +266,31 @@ trancriptVis <- function(gtfFile = NULL,
         tmp1 <- tmp %>% dplyr::filter(transcript_id == t) %>%
           dplyr::arrange(start,end)
 
-        # start coord
-        startPos <- tmp1$start[1]
+        # whether reverse negtive strand
+        if(revNegStrand == FALSE){
+          # start coord
+          startPos <- min(tmp1$start)
 
-        # add new pos
-        tmp1 <- tmp1 %>% dplyr::mutate(start = start - startPos,
-                                       end = end - startPos)
+          # add new pos
+          tmp1 <- tmp1 %>% dplyr::mutate(start = start - startPos,
+                                         end = end - startPos)
+        }else{
+          if(unique(tmp1$strand) == '-'){
+            # end coord
+            endPos <- max(tmp1$end)
+
+            # add new pos
+            tmp1 <- tmp1 %>% dplyr::mutate(start = endPos - start,
+                                           end = endPos - end)
+          }else{
+            # start coord
+            startPos <- min(tmp1$start)
+
+            # add new pos
+            tmp1 <- tmp1 %>% dplyr::mutate(start = start - startPos,
+                                           end = end - startPos)
+          }
+        }
         return(tmp1)
       }) -> relPos_tmp
       return(relPos_tmp)
@@ -284,9 +305,14 @@ trancriptVis <- function(gtfFile = NULL,
   trans <- exonNewPos %>% dplyr::filter(type == 'transcript')
 
   # add text x/y pos
-  trans$textX <- ifelse(trans$strand == '+',trans$start + trans$width/2,
-                        trans$end - trans$width/2)
-  trans$textY <- trans$yPos + relTextDist
+  if(revNegStrand == FALSE){
+    trans$textX <- ifelse(trans$strand == '+',trans$start + trans$width/2,
+                          trans$end - trans$width/2)
+    trans$textY <- trans$yPos + relTextDist
+  }else{
+    trans$textX <- (trans$start + trans$end)/2
+    trans$textY <- trans$yPos + relTextDist
+  }
 
   ##############################################################################
   # whether add specific arrow
@@ -337,6 +363,13 @@ trancriptVis <- function(gtfFile = NULL,
       }) -> arrow_trans1
       return(arrow_trans1)
     }) -> arrow_trans
+  }
+
+  # change reversed specArrow direction
+  if(revNegStrand == FALSE){
+    arrow_trans <- arrow_trans
+  }else{
+    arrow_trans$vl_x2 <- abs(arrow_trans$vl_x2)
   }
 
   # strand control arrow direction
