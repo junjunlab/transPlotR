@@ -134,7 +134,7 @@
 #' cowplot::plot_grid(p1,p2,ncol = 2,align = 'hv')
 
 # global variables
-globalVariables(c('end', 'gene_biotype', 'gene_id', 'gene_name','seqnames',
+globalVariables(c('end', 'gene_id', 'gene_name','seqnames',
                   'start', 'strand','transcript_id','transcript_name', 'type', 'vl_x1' ,'width', 'yPos'))
 
 # use_package("tidyverse", type = "depends")
@@ -191,18 +191,19 @@ trancriptVis <- function(gtfFile = NULL,
                          revNegStrand = FALSE){
   ##############################################################################
   # test whether with a given specific gene or region
+
   if(is.null(gene)){
     # filter gene by region
     myGene <- gtfFile %>%
       dplyr::filter(seqnames == Chr & start >= posStart & end <= posEnd) %>%
       dplyr::filter(type != 'gene') %>%
-      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,gene_biotype,transcript_id,transcript_name)
+      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,transcript_id,transcript_name)
   }else{
     # filter gene by gene name
     myGene <- gtfFile %>%
       dplyr::filter(gene_name %in% gene) %>%
       dplyr::filter(type != 'gene') %>%
-      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,gene_biotype,transcript_id,transcript_name)
+      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,transcript_id,transcript_name)
   }
 
   ##############################################################################
