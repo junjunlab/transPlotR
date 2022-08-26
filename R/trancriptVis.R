@@ -53,6 +53,8 @@
 #' @param revNegStrand Whether reverse the negtive strand when set "forcePosRel=TRUE", default('FALSE').
 #'
 #' @import tidyverse
+#' @import cowplot
+#' @import stats
 #'
 #' @return A ggplot object.
 #'
