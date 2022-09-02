@@ -103,6 +103,8 @@
 \item{revNegStrand}{Whether reverse the negtive strand when set "forcePosRel=TRUE", default('FALSE').}
 
 \item{xAxis.info}{Whether retain X axis ticks and text, default(TRUE).}
+
+\item{reverse.y}{whether reverse the Y axis, default(FALSE).}
 }
 \value{
 A ggplot object.

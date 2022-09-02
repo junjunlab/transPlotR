@@ -2,6 +2,7 @@
 
 export("%>%")
 export(bedVis)
+export(linkVis)
 export(loadBigWig)
 export(trackVis)
 export(trancriptVis)

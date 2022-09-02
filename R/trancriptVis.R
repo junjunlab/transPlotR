@@ -53,6 +53,7 @@
 #' @param revNegStrand Whether reverse the negtive strand when set "forcePosRel=TRUE", default('FALSE').
 #'
 #' @param xAxis.info Whether retain X axis ticks and text, default(TRUE).
+#' @param reverse.y whether reverse the Y axis, default(FALSE).
 #'
 #' @import tidyverse
 #' @import cowplot
@@ -193,7 +194,8 @@ trancriptVis <- function(gtfFile = NULL,
                          forcePosRel = FALSE,
                          panel.spacing = 0.3,
                          revNegStrand = FALSE,
-                         xAxis.info = TRUE){
+                         xAxis.info = TRUE,
+                         reverse.y = FALSE){
   ##############################################################################
   # test whether with a given specific gene or region
 
@@ -634,7 +636,14 @@ trancriptVis <- function(gtfFile = NULL,
     p8 <- p7
   }
 
-  return(p8)
+  # whether reverse y axis
+  if(reverse.y == TRUE){
+    p9 <- p8 +
+      ggplot2::scale_y_reverse()
+  }else{
+    p9 <- p8
+  }
+  return(p9)
 }
 
 ###############################
