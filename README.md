@@ -22,12 +22,12 @@ This is a basic example:
 ``` r
 library(transPlotR)
 ## basic example code
-
 data(gtf)
 
-# non-coding gene
+# facet by gene
 trancriptVis(gtfFile = gtf,
-             gene = 'Xist')
+             gene = c('Camk1g','Daw1','Oprk1'),
+             facetByGene = T)
 ```
 
 ![image](https://user-images.githubusercontent.com/64965509/188102988-fd13646d-46d8-4f47-9921-990815f8d376.png)
