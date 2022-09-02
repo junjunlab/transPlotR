@@ -35,3 +35,5 @@ trancriptVis(gtfFile = gtf,
 ## More examples
 
 > - **https://github.com/junjunlab/transPlotR/wiki/TransPlot-documentation**
+
+> - https://github.com/junjunlab/transPlotR/wiki/TransPlot-0.0.3-documentation
