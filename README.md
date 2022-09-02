@@ -30,7 +30,7 @@ trancriptVis(gtfFile = gtf,
              gene = 'Xist')
 ```
 
-![image](https://user-images.githubusercontent.com/64965509/178003174-a272c28d-d1fb-49e5-9c85-c427b83982f3.png)
+![image](https://user-images.githubusercontent.com/64965509/188102988-fd13646d-46d8-4f47-9921-990815f8d376.png)
 
 ## More examples
 
