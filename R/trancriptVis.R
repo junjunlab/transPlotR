@@ -1,6 +1,6 @@
 #' @title trancriptVis
 #' @name trancriptVis
-#' @author Junjun Lao
+#' @author JunZhang
 #' @description This package is to visualize gene diffrent isoforms.
 #' @param gtfFile GTF file.
 #' @param gene Target gene to plot.
@@ -51,6 +51,8 @@
 #' @param forcePosRel Whether force the genome coordinate to relative position to transcript start/end position, default('FALSE').
 #' @param panel.spacing Facet plot panel space, default(0.3).
 #' @param revNegStrand Whether reverse the negtive strand when set "forcePosRel=TRUE", default('FALSE').
+#'
+#' @param xAxis.info Whether retain X axis ticks and text, default(TRUE).
 #'
 #' @import tidyverse
 #' @import cowplot
@@ -190,22 +192,31 @@ trancriptVis <- function(gtfFile = NULL,
                          strip.position = 'top',
                          forcePosRel = FALSE,
                          panel.spacing = 0.3,
-                         revNegStrand = FALSE){
+                         revNegStrand = FALSE,
+                         xAxis.info = TRUE){
   ##############################################################################
   # test whether with a given specific gene or region
 
+  # selec columns
+  if("transcript_name" %in% colnames(gtfFile)){
+    sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id','transcript_name')
+  }else{
+    sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id')
+  }
+
+  # select data
   if(is.null(gene)){
     # filter gene by region
     myGene <- gtfFile %>%
       dplyr::filter(seqnames == Chr & start >= posStart & end <= posEnd) %>%
       dplyr::filter(type != 'gene') %>%
-      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,transcript_id,transcript_name)
+      dplyr::select(sln)
   }else{
     # filter gene by gene name
     myGene <- gtfFile %>%
       dplyr::filter(gene_name %in% gene) %>%
       dplyr::filter(type != 'gene') %>%
-      dplyr::select(seqnames,start,end,width,strand,type,gene_id,gene_name,transcript_id,transcript_name)
+      dplyr::select(sln)
   }
 
   ##############################################################################
@@ -230,23 +241,26 @@ trancriptVis <- function(gtfFile = NULL,
       # loop for tid
       trans_tmp <- tmp %>% dplyr::filter(type == 'transcript') %>%
         dplyr::arrange(width)
-      tid <- unique(trans_tmp$transcript_id)
 
-      # assign y position
-      purrr::map_df(1:length(tid),function(x){
-        tmp1 <- myData %>%
-          dplyr::filter(transcript_id == tid[x]) %>%
-          dplyr::mutate(yPos = x)
-        tmp1$ymin <- ifelse(tmp1$type == 'CDS',
-                            tmp1$yPos - exonWidth/2,
-                            tmp1$yPos - exonWidth/6)
-        tmp1$ymax <- ifelse(tmp1$type == 'CDS',
-                            tmp1$yPos + exonWidth/2,
-                            tmp1$yPos + exonWidth/6)
-        return(tmp1)
-      }) -> exon_ypos
+      # whether has transcript in gene info
+      if(nrow(trans_tmp) > 0){
+        tid <- unique(trans_tmp$transcript_id)
 
-      return(exon_ypos)
+        # assign y position
+        purrr::map_df(1:length(tid),function(x){
+          tmp1 <- myData %>%
+            dplyr::filter(transcript_id == tid[x]) %>%
+            dplyr::mutate(yPos = x)
+          tmp1$ymin <- ifelse(tmp1$type == 'CDS',
+                              tmp1$yPos - exonWidth/2,
+                              tmp1$yPos - exonWidth/6)
+          tmp1$ymax <- ifelse(tmp1$type == 'CDS',
+                              tmp1$yPos + exonWidth/2,
+                              tmp1$yPos + exonWidth/6)
+          return(tmp1)
+        }) -> exon_ypos
+      }
+      # return(exon_ypos)
     }) -> mul_exon_ypos
   }else{
     # collapse gene
@@ -322,6 +336,12 @@ trancriptVis <- function(gtfFile = NULL,
   if(newStyleArrow == FALSE){
     arrow_trans <- trans
   }else{
+    # whether supply gene or coordinate
+    if(is.null(gene)){
+      gene <- unique(trans$gene_name)
+    }
+
+    # loop
     purrr::map_df(gene,function(gen){
       genTrans <- trans %>% dplyr::filter(gene_name == gen) %>%
         dplyr::arrange(dplyr::desc(width))
@@ -604,7 +624,17 @@ trancriptVis <- function(gtfFile = NULL,
     p7 <- p6 +
       ggplot2::xlab('Relative position to start/end')
   }
-  return(p7)
+
+  # X aixs text and ticks
+  if(xAxis.info == F){
+    p8 <- p7 +
+      ggplot2::theme(axis.ticks.x = ggplot2::element_blank(),
+                     axis.text.x = ggplot2::element_blank())
+  }else{
+    p8 <- p7
+  }
+
+  return(p8)
 }
 
 ###############################

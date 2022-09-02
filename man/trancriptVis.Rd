@@ -101,6 +101,8 @@
 \item{panel.spacing}{Facet plot panel space, default(0.3).}
 
 \item{revNegStrand}{Whether reverse the negtive strand when set "forcePosRel=TRUE", default('FALSE').}
+
+\item{xAxis.info}{Whether retain X axis ticks and text, default(TRUE).}
 }
 \value{
 A ggplot object.
@@ -185,5 +187,5 @@ p2 <- trancriptVis(gtfFile = gtf,
 cowplot::plot_grid(p1,p2,ncol = 2,align = 'hv')
 }
 \author{
-Junjun Lao
+JunZhang
 }
