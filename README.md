@@ -26,10 +26,6 @@ devtools::install_github("junjunlab/transPlotR")
 > - **ggnewscale**
 > - **purrr**
 
-**Note:**
-
-> **trancriptVis** function doesn't support gtf from NCBI, I recommend the gtf file from UCSC, ENSEMBL or GENCODE database.
-
 ## Example
 
 This is a basic example:
