@@ -140,7 +140,7 @@
 
 # global variables
 globalVariables(c('end', 'gene_id', 'gene_name','seqnames',
-                  'start', 'strand','transcript_id','transcript_name', 'type', 'vl_x1' ,'width', 'yPos'))
+                  'start', 'strand','transcript_id','transcript_name', 'type', 'vl_x1' ,'width', 'yPos','.env'))
 
 # use_package("tidyverse", type = "depends")
 
@@ -199,11 +199,25 @@ trancriptVis <- function(gtfFile = NULL,
   ##############################################################################
   # test whether with a given specific gene or region
 
-  # selec columns
+  # select columns
+  # if("transcript_name" %in% colnames(gtfFile)){
+  #   sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id','transcript_name')
+  # }else{
+  #   sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id')
+  # }
+
   if("transcript_name" %in% colnames(gtfFile)){
-    sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id','transcript_name')
+    if("gene_name" %in% colnames(gtfFile)){
+      sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id','transcript_name')
+    }else{
+      sln <- c('seqnames','start','end','width','strand','type','gene_id','transcript_id','transcript_name')
+    }
   }else{
-    sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id')
+    if("gene_name" %in% colnames(gtfFile)){
+      sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id')
+    }else{
+      sln <- c('seqnames','start','end','width','strand','type','gene_id','transcript_id')
+    }
   }
 
   # select data
@@ -214,11 +228,21 @@ trancriptVis <- function(gtfFile = NULL,
       dplyr::filter(type != 'gene') %>%
       dplyr::select(sln)
   }else{
-    # filter gene by gene name
-    myGene <- gtfFile %>%
-      dplyr::filter(gene_name %in% gene) %>%
-      dplyr::filter(type != 'gene') %>%
-      dplyr::select(sln)
+    # use gene_id stands for gene_name
+    if("gene_name" %in% colnames(gtfFile)){
+      # filter gene by gene name
+      myGene <- gtfFile %>%
+        dplyr::filter(gene_name %in% .env$gene) %>%
+        dplyr::filter(type != 'gene') %>%
+        dplyr::select(sln)
+    }else{
+      # filter gene by gene name
+      myGene <- gtfFile %>%
+        dplyr::select(sln) %>%
+        dplyr::mutate(gene_name = gene_id) %>%
+        dplyr::filter(gene_name %in% .env$gene) %>%
+        dplyr::filter(type != 'gene')
+    }
   }
 
   ##############################################################################
