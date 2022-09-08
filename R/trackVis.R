@@ -35,6 +35,9 @@
 #' @param pos.ratio the new style Y axis relative position, default(c(0.05,0.8)).
 #' @param yinfo.text.size the new style Y axis text size, default(5).
 #'
+#' @param back.color whether add panel background color, default(FALSE).
+#' @param back.color.alpha panel background color alpha, default(0.15).
+#'
 #' @return a ggplot object.
 #' @export
 
@@ -70,7 +73,9 @@ trackVis <- function(bWData = NULL,
                      mark.alpha = 0.5,
                      new.yaxis = FALSE,
                      pos.ratio = c(0.05,0.8),
-                     yinfo.text.size = 5){
+                     yinfo.text.size = 5,
+                     back.color = FALSE,
+                     back.color.alpha = 0.15){
   # whether supply gene name
   if(!is.null(gtf.file) & !is.null(gene.name)){
     gene <- gtf.file %>% dplyr::filter(gene_name == gene.name)
@@ -89,9 +94,25 @@ trackVis <- function(bWData = NULL,
     regeion.bw$fileName <- factor(regeion.bw$fileName,levels = sample.order)
   }
 
+  # panel background data
+  dback <- data.frame(fileName = unique(regeion.bw$fileName))
+
+  # whether add background
+  if(back.color == TRUE){
+    p0 <-
+      ggplot2::ggplot(regeion.bw) +
+      ggplot2::geom_rect(data = dback,
+                         ggplot2::aes(xmin = -Inf,xmax = Inf,ymin = 0,ymax = Inf,
+                                      fill = fileName),
+                         show.legend = FALSE,
+                         alpha = back.color.alpha)
+  }else{
+    p0 <-
+      ggplot2::ggplot(regeion.bw)
+  }
+
   # plot
-  p1 <-
-    ggplot2::ggplot(regeion.bw) +
+  p1 <- p0 +
     ggplot2::geom_rect(ggplot2::aes(xmin = start,xmax = end,
                                     ymin = 0,ymax = score,
                                     fill = fileName,color = fileName),
@@ -128,7 +149,7 @@ trackVis <- function(bWData = NULL,
                      strip.placement = 'outside',
                      strip.background = ggplot2::element_rect(fill = NA,colour = NA),
                      strip.switch.pad.wrap = ggplot2::unit(sampleName.dist,'cm'),
-                     panel.spacing = ggplot2::unit(0,'cm'))
+                     panel.spacing = ggplot2::unit(space.y,'cm'))
 
   }else{
     p1.1 <- p1 +

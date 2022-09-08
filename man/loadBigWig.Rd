@@ -7,7 +7,7 @@
 loadBigWig(bwFile = NULL)
 }
 \arguments{
-\item{bwFile}{the path of bigwig files, default(NULL).}
+\item{bwFile}{the path of bigwig files, default(NULL). bigwig files should end with ".bw" or ".bigwig" and directory should not be named "bw" or"bigwig".}
 }
 \value{
 a data.frame

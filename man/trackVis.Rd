@@ -65,6 +65,10 @@
 \item{pos.ratio}{the new style Y axis relative position, default(c(0.05,0.8)).}
 
 \item{yinfo.text.size}{the new style Y axis text size, default(5).}
+
+\item{back.color}{whether add panel background color, default(FALSE).}
+
+\item{back.color.alpha}{panel background color alpha, default(0.15).}
 }
 \value{
 a ggplot object.
