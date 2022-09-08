@@ -37,6 +37,7 @@
 #'
 #' @param back.color whether add panel background color, default(FALSE).
 #' @param back.color.alpha panel background color alpha, default(0.15).
+#' @param y.max the ylim, default(NULL).
 #'
 #' @return a ggplot object.
 #' @export
@@ -59,9 +60,10 @@ trackVis <- function(bWData = NULL,
                      label.face = "bold",
                      space.y = 0.5,
                      sample.order = NULL,
-                     sampleName.dist = 0.4,
+                     sampleName.dist = 0,
                      sampleName.hjust = 1,
                      sampleName.vjust = 0.5,
+                     y.max = NULL,
                      xAxis.info = TRUE,
                      yAxis.info = TRUE,
                      ticks.y.len = 0.3,
@@ -128,9 +130,16 @@ trackVis <- function(bWData = NULL,
     ggplot2::guides(color = ggplot2::guide_legend(title = ''))
 
   # y labels
+  if(is.null(y.max)){
+    ylimit <- range(regeion.bw$score)[2]
+  }else{
+    ylimit <- y.max
+  }
+
   if(scales == "fixed"){
     p1 <- p1 +
-      ggplot2::scale_y_continuous(breaks = c(0,range(regeion.bw$score)[2]))
+      ggplot2::scale_y_continuous(breaks = c(0,ylimit),
+                                  limits = c(0,ylimit))
   }else{
     p1 <- p1
   }
@@ -207,7 +216,7 @@ trackVis <- function(bWData = NULL,
         ggnewscale::new_scale_fill() +
         ggplot2::geom_rect(data = mark.df,
                            ggplot2::aes(xmin = start,xmax = end,
-                                        ymin = 0,ymax = range(regeion.bw$score)[2],
+                                        ymin = 0,ymax = ylimit,
                                         fill = group),alpha = mark.alpha,
                            show.legend = FALSE)
 
@@ -227,9 +236,9 @@ trackVis <- function(bWData = NULL,
 
   # whether add new yaxis
   if(new.yaxis == TRUE){
-    yinfo <- data.frame(label = paste("[0-",range(regeion.bw$score)[2],"]",sep = ''),
+    yinfo <- data.frame(label = paste("[0-",ylimit,"]",sep = ''),
                         x = range(regeion.bw$start)[1] + pos.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
-                        y = pos.ratio[2]*range(regeion.bw$score)[2])
+                        y = pos.ratio[2]*ylimit)
 
     # add text label
     p6 <- p5 +

@@ -69,6 +69,8 @@
 \item{back.color}{whether add panel background color, default(FALSE).}
 
 \item{back.color.alpha}{panel background color alpha, default(0.15).}
+
+\item{y.max}{the ylim, default(NULL).}
 }
 \value{
 a ggplot object.
