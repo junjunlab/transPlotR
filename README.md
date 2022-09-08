@@ -18,7 +18,7 @@ You can install the development version of transPlotR like so:
 devtools::install_github("junjunlab/transPlotR")
 ```
 
-**requierment**
+**requirement**
 
 > - **rtracklayer**
 > - **ggarchery**
