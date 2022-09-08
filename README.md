@@ -18,7 +18,7 @@ You can install the development version of transPlotR like so:
 devtools::install_github("junjunlab/transPlotR")
 ```
 
-**requirement**
+**Requirement:**
 
 > - **rtracklayer**
 > - **ggarchery**
@@ -26,9 +26,9 @@ devtools::install_github("junjunlab/transPlotR")
 > - **ggnewscale**
 > - **purrr**
 
-**note**
+**Note:**
 
-**trancriptVis** function doesn't support gtf from NCBI, I recommend the gtf file from UCSC, ENSEMBL or GENCODE database.
+> **trancriptVis** function doesn't support gtf from NCBI, I recommend the gtf file from UCSC, ENSEMBL or GENCODE database.
 
 ## Example
 
