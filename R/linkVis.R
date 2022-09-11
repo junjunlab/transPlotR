@@ -21,6 +21,8 @@
 #' @param facet.text.size facet text size, default(14).
 #' @param xAixs.info whether remove X axis info, default(FASLE).
 #'
+#' @param base_size theme base_size, default(14).
+#'
 #' @return a ggplot object.
 #' @export
 
@@ -28,6 +30,7 @@ linkVis <- function(linkData = NULL,
                     start = NULL,
                     end = NULL,
                     group = NULL,
+                    base_size = 14,
                     link.aescolor = NULL,
                     link.color = NULL,
                     line.size = 0.5,
@@ -89,7 +92,7 @@ linkVis <- function(linkData = NULL,
   # ajust y
   p1 <- p1 +
     ggplot2::scale_y_discrete(expand = ggplot2::expansion(mult = c(0,-yshift))) +
-    ggplot2::theme_bw() +
+    ggplot2::theme_bw(base_size) +
     ggplot2::xlab('') + ggplot2::ylab('')
 
   # whether mapping color

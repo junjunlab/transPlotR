@@ -2,6 +2,7 @@
 
 export("%>%")
 export(bedVis)
+export(calcuRotatedCoord)
 export(linkVis)
 export(loadBigWig)
 export(trackVis)

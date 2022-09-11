@@ -9,6 +9,7 @@ linkVis(
   start = NULL,
   end = NULL,
   group = NULL,
+  base_size = 14,
   link.aescolor = NULL,
   link.color = NULL,
   line.size = 0.5,
@@ -32,6 +33,8 @@ linkVis(
 \item{end}{link end position, default(NULL).}
 
 \item{group}{facet group variable name, default(NULL).}
+
+\item{base_size}{theme base_size, default(14).}
 
 \item{link.aescolor}{link line color or mapping variable name, default(NULL).}
 
