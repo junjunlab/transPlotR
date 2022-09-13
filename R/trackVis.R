@@ -32,7 +32,7 @@
 #' @param mark.col the colors of marked regions, default(NULL).
 #' @param mark.alpha the color alpha of marked regions, default(0.5).
 #' @param new.yaxis whether add new style Y axis, default(FALSE).
-#' @param pos.ratio the new style Y axis relative position, default(c(0.05,0.8)).
+#' @param pos.ratio the new style Y axis relative position, default(c(0.01,0.8)).
 #' @param yinfo.text.size the new style Y axis text size, default(5).
 #'
 #' @param back.color whether add panel background color, default(FALSE).
@@ -40,9 +40,10 @@
 #' @param y.max the ylim, default(NULL).
 #' @param new.label whether add label in plot, default(FALSE).
 #' @param label.color the label color, default(NULL).
-#' @param pos.label.ratio the new label relative position, default(c(0.95,0.8)).
+#' @param pos.label.ratio the new label relative position, default(c(0.99,0.8)).
 #' @param label.text.size the new label text size, default(5).
 #' @param label.hjust the new label text hjust, default(1).
+#' @param yinfo.hjust the new style Y axis text hjust, default(0).
 #'
 #' @return a ggplot object.
 #' @export
@@ -79,11 +80,12 @@ trackVis <- function(bWData = NULL,
                      mark.col = NULL,
                      mark.alpha = 0.5,
                      new.yaxis = FALSE,
-                     pos.ratio = c(0.05,0.8),
+                     pos.ratio = c(0.01,0.8),
                      yinfo.text.size = 5,
+                     yinfo.hjust = 0,
                      new.label = FALSE,
                      label.color = NULL,
-                     pos.label.ratio = c(0.95,0.8),
+                     pos.label.ratio = c(0.99,0.8),
                      label.text.size = 5,
                      label.hjust = 1,
                      back.color = FALSE,
@@ -253,7 +255,9 @@ trackVis <- function(bWData = NULL,
     # add text label
     p6 <- p5 +
       ggplot2::geom_text(data = yinfo,
-                         ggplot2::aes(x = x,y = y,label = label),size = yinfo.text.size)
+                         ggplot2::aes(x = x,y = y,label = label),
+                         size = yinfo.text.size,
+                         hjust = yinfo.hjust)
   }else{
     p6 <- p5
   }

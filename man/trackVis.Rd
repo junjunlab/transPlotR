@@ -62,7 +62,7 @@
 
 \item{new.yaxis}{whether add new style Y axis, default(FALSE).}
 
-\item{pos.ratio}{the new style Y axis relative position, default(c(0.05,0.8)).}
+\item{pos.ratio}{the new style Y axis relative position, default(c(0.01,0.8)).}
 
 \item{yinfo.text.size}{the new style Y axis text size, default(5).}
 
@@ -76,11 +76,13 @@
 
 \item{label.color}{the label color, default(NULL).}
 
-\item{pos.label.ratio}{the new label relative position, default(c(0.95,0.8)).}
+\item{pos.label.ratio}{the new label relative position, default(c(0.99,0.8)).}
 
 \item{label.text.size}{the new label text size, default(5).}
 
 \item{label.hjust}{the new label text hjust, default(1).}
+
+\item{yinfo.hjust}{the new style Y axis text hjust, default(0).}
 }
 \value{
 a ggplot object.
