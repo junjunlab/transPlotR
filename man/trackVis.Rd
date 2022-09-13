@@ -71,6 +71,16 @@
 \item{back.color.alpha}{panel background color alpha, default(0.15).}
 
 \item{y.max}{the ylim, default(NULL).}
+
+\item{new.label}{whether add label in plot, default(FALSE).}
+
+\item{label.color}{the label color, default(NULL).}
+
+\item{pos.label.ratio}{the new label relative position, default(c(0.95,0.8)).}
+
+\item{label.text.size}{the new label text size, default(5).}
+
+\item{label.hjust}{the new label text hjust, default(1).}
 }
 \value{
 a ggplot object.

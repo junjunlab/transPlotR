@@ -38,6 +38,11 @@
 #' @param back.color whether add panel background color, default(FALSE).
 #' @param back.color.alpha panel background color alpha, default(0.15).
 #' @param y.max the ylim, default(NULL).
+#' @param new.label whether add label in plot, default(FALSE).
+#' @param label.color the label color, default(NULL).
+#' @param pos.label.ratio the new label relative position, default(c(0.95,0.8)).
+#' @param label.text.size the new label text size, default(5).
+#' @param label.hjust the new label text hjust, default(1).
 #'
 #' @return a ggplot object.
 #' @export
@@ -76,6 +81,11 @@ trackVis <- function(bWData = NULL,
                      new.yaxis = FALSE,
                      pos.ratio = c(0.05,0.8),
                      yinfo.text.size = 5,
+                     new.label = FALSE,
+                     label.color = NULL,
+                     pos.label.ratio = c(0.95,0.8),
+                     label.text.size = 5,
+                     label.hjust = 1,
                      back.color = FALSE,
                      back.color.alpha = 0.15){
   # whether supply gene name
@@ -247,5 +257,34 @@ trackVis <- function(bWData = NULL,
   }else{
     p6 <- p5
   }
-  return(p6)
+
+  # whether add new sample label
+  if(new.label == TRUE){
+    labelinfo <- data.frame(fileName = unique(regeion.bw$fileName),
+                        x = range(regeion.bw$start)[1] + pos.label.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
+                        y = pos.label.ratio[2]*ylimit)
+
+    # add text label
+    if(is.null(label.color)){
+      label.color <- rep('black',nrow(labelinfo))
+    }else{
+      label.color <- label.color
+    }
+
+    # plot
+    p7 <- p6 +
+      ggnewscale::new_scale_color() +
+      ggplot2::geom_text(data = labelinfo,
+                         ggplot2::aes(x = x,y = y,label = fileName,color = fileName),
+                         show.legend = FALSE,
+                         size = label.text.size,
+                         hjust = label.hjust,
+                         fontface = label.face) +
+      ggplot2::scale_color_manual(values = label.color) +
+      ggplot2::theme(strip.text.y.left = ggplot2::element_blank())
+  }else{
+    p7 <- p6
+  }
+
+  return(p7)
 }
