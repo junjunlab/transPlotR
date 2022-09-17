@@ -105,6 +105,8 @@
 \item{xAxis.info}{Whether retain X axis ticks and text, default(TRUE).}
 
 \item{reverse.y}{whether reverse the Y axis, default(FALSE).}
+
+\item{text.pos}{the label position(left/right), default(middle).}
 }
 \value{
 A ggplot object.

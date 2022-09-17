@@ -54,6 +54,7 @@
 #'
 #' @param xAxis.info Whether retain X axis ticks and text, default(TRUE).
 #' @param reverse.y whether reverse the Y axis, default(FALSE).
+#' @param text.pos the label position(left/right), default(middle).
 #'
 #' @import tidyverse
 #' @import cowplot
@@ -181,6 +182,7 @@ trancriptVis <- function(gtfFile = NULL,
                          speArrowLen = 0.1,
                          speArrowType = "closed",
                          textLabel = 'transcript_id',
+                         text.pos = "middle",
                          textLabelSize = 5,
                          textLabelColor = 'black',
                          base_size = 14,
@@ -349,12 +351,37 @@ trancriptVis <- function(gtfFile = NULL,
 
   # add text x/y pos
   if(revNegStrand == FALSE){
-    trans$textX <- ifelse(trans$strand == '+',trans$start + trans$width/2,
-                          trans$end - trans$width/2)
-    trans$textY <- trans$yPos + relTextDist
+    # define label position
+    if(text.pos == "left"){
+      text.pos.hjust = 1
+      trans$textX <- trans$start
+      trans$textY <- trans$yPos + relTextDist
+    }else if(text.pos == "right"){
+      text.pos.hjust = 0
+      trans$textX <- trans$end
+      trans$textY <- trans$yPos + relTextDist
+    }else{
+      text.pos.hjust = 0.5
+      trans$textX <- ifelse(trans$strand == '+',
+                            trans$start + trans$width/2,
+                            trans$end - trans$width/2)
+      trans$textY <- trans$yPos + relTextDist
+    }
   }else{
-    trans$textX <- (trans$start + trans$end)/2
-    trans$textY <- trans$yPos + relTextDist
+    # define label position
+    if(text.pos == "left"){
+      text.pos.hjust = 1
+      trans$textX <- trans$start
+      trans$textY <- trans$yPos + relTextDist
+    }else if(text.pos == "right"){
+      text.pos.hjust = 0
+      trans$textX <- trans$end
+      trans$textY <- trans$yPos + relTextDist
+    }else{
+      text.pos.hjust = 0.5
+      trans$textX <- (trans$start + trans$end)/2
+      trans$textY <- trans$yPos + relTextDist
+    }
   }
 
   ##############################################################################
@@ -599,6 +626,7 @@ trancriptVis <- function(gtfFile = NULL,
                                              label = textLabel),
                          size = textLabelSize,
                          color = textLabelColor,
+                         hjust = text.pos.hjust,
                          check_overlap = T) +
       ggplot2::theme_bw(base_size = base_size) +
       ggplot2::theme(panel.grid = ggplot2::element_blank(),
@@ -614,6 +642,7 @@ trancriptVis <- function(gtfFile = NULL,
                                   ggplot2::aes_string(x = "textX",y = "textY",label = textLabel),
                                   size = textLabelSize,
                                   color = textLabelColor,
+                                  hjust = text.pos.hjust,
                                   text_only = text_only) +
       ggplot2::coord_polar(theta = 'x',start = cicStart) +
       ggplot2::scale_y_continuous(limits = c(ylimLow,nrow(arrow_trans) + 1)) +
