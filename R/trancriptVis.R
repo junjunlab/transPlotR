@@ -256,6 +256,27 @@ trancriptVis <- function(gtfFile = NULL,
       dplyr::filter(transcript_id %in% myTranscript)
   }
 
+  # whether type column contains "transcript" info
+  typeInfo <- unique(myData$type)
+  if("transcript" %in% typeInfo){
+    myData <- myData
+  }else{
+    purrr::map_df(unique(myData$transcript_id),function(x){
+      tmp <- myData %>% dplyr::filter(transcript_id == x)
+      tinfo <- tmp[1,]
+
+      # assign start and end
+      tinfo <- tinfo %>%
+        dplyr::mutate(start = min(tmp$start),
+                      end = max(tmp$end),
+                      type = "transcript")
+
+      # combine
+      tData <- rbind(tinfo,tmp)
+      return(tData)
+    }) -> myData
+  }
+
   # get gene id
   gid <- unique(myData$gene_id)
 
