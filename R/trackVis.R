@@ -44,6 +44,9 @@
 #' @param label.text.size the new label text size, default(5).
 #' @param label.hjust the new label text hjust, default(1).
 #' @param yinfo.hjust the new style Y axis text hjust, default(0).
+#' @param facetGroup the annotation for samples, default(NULL).
+#' @param annoLine.size the annotation line size, default(1).
+#' @param line.arrow the annotation line arrow, default(NULL).
 #'
 #' @return a ggplot object.
 #' @export
@@ -69,6 +72,9 @@ trackVis <- function(bWData = NULL,
                      sampleName.dist = 0,
                      sampleName.hjust = 1,
                      sampleName.vjust = 0.5,
+                     facetGroup = NULL,
+                     annoLine.size = 1,
+                     line.arrow = NULL,
                      y.max = NULL,
                      xAxis.info = TRUE,
                      yAxis.info = TRUE,
@@ -136,11 +142,22 @@ trackVis <- function(bWData = NULL,
                           size = 1) +
     ggplot2::xlab('') + ggplot2::ylab('') +
     ggplot2::coord_cartesian(expand = 0) +
-    ggplot2::facet_wrap(~fileName,ncol = ncol,
-                        strip.position = 'left',scales = scales) +
     ggplot2::guides(fill = ggplot2::guide_legend(title = '')) +
     ggplot2::guides(color = ggplot2::guide_legend(title = ''))
 
+  if(is.null(facetGroup)){
+    p1 <- p1 +
+      ggplot2::facet_wrap(~fileName,ncol = ncol,
+                          strip.position = 'left',scales = scales)
+  }else{
+    p1 <- p1 +
+      ggh4x::facet_nested_wrap(facets = c(facetGroup,"fileName"),
+                               nest_line = ggplot2::element_line(colour = 'black',
+                                                                 size = annoLine.size,
+                                                                 arrow = line.arrow),
+                               strip.position = 'left',
+                               scales = scales,ncol = ncol)
+  }
   # y labels
   if(is.null(y.max)){
     ylimit <- range(regeion.bw$score)[2]
@@ -264,9 +281,22 @@ trackVis <- function(bWData = NULL,
 
   # whether add new sample label
   if(new.label == TRUE){
-    labelinfo <- data.frame(fileName = unique(regeion.bw$fileName),
-                        x = range(regeion.bw$start)[1] + pos.label.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
-                        y = pos.label.ratio[2]*ylimit)
+    if(is.null(facetGroup)){
+      group <- NA
+      fileName <- unique(regeion.bw$fileName)
+    }else{
+      tmp <- regeion.bw %>%
+        dplyr::select(fileName,group) %>%
+        unique()
+      fileName <- tmp$fileName
+      group <- tmp$group
+    }
+
+    # label info
+    labelinfo <- data.frame(fileName = fileName,
+                            group = group,
+                            x = range(regeion.bw$start)[1] + pos.label.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
+                            y = pos.label.ratio[2]*ylimit)
 
     # add text label
     if(is.null(label.color)){
@@ -284,8 +314,14 @@ trackVis <- function(bWData = NULL,
                          size = label.text.size,
                          hjust = label.hjust,
                          fontface = label.face) +
-      ggplot2::scale_color_manual(values = label.color) +
-      ggplot2::theme(strip.text.y.left = ggplot2::element_blank())
+      ggplot2::scale_color_manual(values = label.color)
+    # ggplot2::theme(strip.text.y.left = ggplot2::element_blank())
+    if(is.null(facetGroup)){
+      p7 <- p7 +
+        ggplot2::theme(strip.text.y.left = ggplot2::element_blank())
+    }else{
+      p7 <- p7
+    }
   }else{
     p7 <- p6
   }

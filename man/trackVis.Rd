@@ -83,6 +83,12 @@
 \item{label.hjust}{the new label text hjust, default(1).}
 
 \item{yinfo.hjust}{the new style Y axis text hjust, default(0).}
+
+\item{facetGroup}{the annotation for samples, default(NULL).}
+
+\item{annoLine.size}{the annotation line size, default(1).}
+
+\item{line.arrow}{the annotation line arrow, default(NULL).}
 }
 \value{
 a ggplot object.
