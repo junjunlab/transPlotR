@@ -269,6 +269,7 @@ trancriptVis <- function(gtfFile = NULL,
       tinfo <- tinfo %>%
         dplyr::mutate(start = min(tmp$start),
                       end = max(tmp$end),
+                      width = abs(max(tmp$end) - min(tmp$start)) + 1,
                       type = "transcript")
 
       # combine
