@@ -158,19 +158,70 @@ trackVis <- function(bWData = NULL,
                                strip.position = 'left',
                                scales = scales,ncol = ncol)
   }
+
   # y labels
   if(is.null(y.max)){
-    ylimit <- range(regeion.bw$score)[2]
+    if(scales == "fixed"){
+      ylimit <- range(regeion.bw$score)[2]
+    }else{
+      # free_y
+      if(is.null(facetGroup)){
+        ylimit <- regeion.bw %>%
+          dplyr::group_by(fileName) %>%
+          dplyr::summarise(maxScore = max(score))
+      }else{
+        ylimit <- regeion.bw %>%
+          dplyr::group_by(.data[[facetGroup]],fileName) %>%
+          dplyr::summarise(maxScore = max(score))
+      }
+    }
   }else{
-    ylimit <- y.max
+    if(scales == "fixed"){
+      ylimit <- y.max
+    }else{
+      # free_y
+      if(is.null(facetGroup)){
+        ylimit <- regeion.bw %>%
+          dplyr::group_by(fileName) %>%
+          dplyr::summarise(maxScore = max(score))
+
+        # add new range
+        ylimit$minScore <- unlist(y.max[[1]])
+        ylimit$maxScore <- unlist(y.max[[2]])
+      }else{
+        ylimit <- regeion.bw %>%
+          dplyr::group_by(.data[[facetGroup]],fileName) %>%
+          dplyr::summarise(maxScore = max(score))
+
+        # add new range
+        ylimit$minScore <- unlist(y.max[[1]])
+        ylimit$maxScore <- unlist(y.max[[2]])
+      }
+    }
   }
 
+  # change y range
   if(scales == "fixed"){
     p1 <- p1 +
       ggplot2::scale_y_continuous(breaks = c(0,ylimit),
                                   limits = c(0,ylimit))
   }else{
-    p1 <- p1
+    if(!is.null(y.max)){
+      low <- unlist(y.max[[1]])
+      high <- unlist(y.max[[2]])
+
+      # facet new scales
+      lapply(1:length(unique(regeion.bw$fileName)), function(x){
+        ggplot2::scale_y_continuous(limits = c(low[x],high[x]),
+                                    breaks = c(low[x],high[x]))
+      }) -> new.scales
+
+      # add new scales
+      p1 <- p1 +
+        ggh4x::facetted_pos_scales(y = new.scales)
+    }else{
+      p1 <- p1
+    }
   }
 
   # choose theme
@@ -265,9 +316,25 @@ trackVis <- function(bWData = NULL,
 
   # whether add new yaxis
   if(new.yaxis == TRUE){
-    yinfo <- data.frame(label = paste("[0-",ylimit,"]",sep = ''),
-                        x = range(regeion.bw$start)[1] + pos.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
-                        y = pos.ratio[2]*ylimit)
+    if(scales == "fixed"){
+      yinfo <- data.frame(label = paste("[0-",ylimit,"]",sep = ''),
+                          x = range(regeion.bw$start)[1] + pos.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
+                          y = pos.ratio[2]*ylimit)
+    }else{
+      if(is.null(y.max)){
+        yinfo <- data.frame(label = paste("[0-",ylimit$maxScore,"]",sep = ''),
+                            fileName = ylimit$fileName,
+                            group = if("group" %in% colnames(ylimit)){ylimit$group}else{1},
+                            x = range(regeion.bw$start)[1] + pos.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
+                            y = pos.ratio[2]*ylimit$maxScore)
+      }else{
+        yinfo <- data.frame(label = paste("[",ylimit$minScore,"-",ylimit$maxScore,"]",sep = ''),
+                            fileName = ylimit$fileName,
+                            group = if("group" %in% colnames(ylimit)){ylimit$group}else{1},
+                            x = range(regeion.bw$start)[1] + pos.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
+                            y = pos.ratio[2]*ylimit$maxScore)
+      }
+    }
 
     # add text label
     p6 <- p5 +
