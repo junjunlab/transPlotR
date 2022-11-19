@@ -26,6 +26,10 @@ devtools::install_github("junjunlab/transPlotR")
 > - **ggnewscale**
 > - **purrr**
 
+## Citation
+
+> Jun Z (2022). *transPlotR: An elegant package to visualize gene structures.*  https://github.com/junjunlab/transPlotR, https://github.com/junjunlab/transPlotR/wiki/TransPlot-documentation
+
 ## Example
 
 This is a basic example:
