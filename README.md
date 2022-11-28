@@ -1,5 +1,5 @@
 
-# transPlotR <img src="man/tranplotR-logo.svg" align="right" height="200" />
+# transPlotR <img src="man/tranplotR-logo.png" align="right" height="200" />
 
 <!-- badges: start -->
 
