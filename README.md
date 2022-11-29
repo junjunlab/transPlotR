@@ -3,7 +3,7 @@
 
 <!-- badges: start -->
 
-There  are some packages to plot gene structures, for example [**ggbio**](https://bioconductor.org/packages/release/bioc/html/ggbio.html), [**ggtranscript**](https://github.com/dzhang32/ggtranscript)... But there are still some limitations for them. The **IGV** software provides a good visualization for gene multiple isoforms. If you want to plot **protein-coding** or **non-coding genes**, it seems a little bit difficult for you to draw with a lot of codes. Here I developed a small R package named [**transPlotR**](https://github.com/junjunlab/transPlotR) which make gene structure visualization much easier. You can provide a little parameters to **trancriptVis** to make a plot with your own **GTF** files.
+There  are some packages to plot gene structures, for example [**ggbio**](https://bioconductor.org/packages/release/bioc/html/ggbio.html), [**ggtranscript**](https://github.com/dzhang32/ggtranscript)... But there are still some limitations for them. The **IGV** software provides a good visualization for gene multiple isoforms. If you want to plot **protein-coding** or **non-coding genes**, it seems a little bit difficult for you to draw with a lot of codes. Here I developed a small R package named [**transPlotR**](https://github.com/junjunlab/transPlotR) which makes gene structure visualization much easier. You can provide a little parameters to **trancriptVis** to make a plot with your own **GTF** files.
 
 Besides, **bedVis** and **trackVis** functions can be used to visualize bed and bigwig files with combing **transcriptVis** function. All these functions will let you produce a nice track plot for some Chip-seq, ATAC-seq and m6A-seq datasets.
 
