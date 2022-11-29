@@ -20,30 +20,13 @@ devtools::install_github("junjunlab/transPlotR")
 
 **Requirement:**
 
-> - **rtracklayer**
-> - **ggarchery**
-> - **geomtextpath**
-> - **ggnewscale**
-> - **purrr**
+> - **rtracklayer**, **ggarchery**, **geomtextpath**, **ggnewscale**, **purrr**
 
 ## Citation
 
 > Jun Z (2022). *transPlotR: An elegant package to visualize gene structures.*  https://github.com/junjunlab/transPlotR, https://github.com/junjunlab/transPlotR/wiki/TransPlot-documentation
 
-## Example
-
-This is a basic example:
-
-``` r
-library(transPlotR)
-## basic example code
-data(gtf)
-
-# facet by gene
-trancriptVis(gtfFile = gtf,
-             gene = c('Camk1g','Daw1','Oprk1'),
-             facetByGene = T)
-```
+## Figure
 
 ![image](https://user-images.githubusercontent.com/64965509/188102988-fd13646d-46d8-4f47-9921-990815f8d376.png)
 
