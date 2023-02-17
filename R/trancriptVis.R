@@ -55,6 +55,8 @@
 #' @param xAxis.info Whether retain X axis ticks and text, default(TRUE).
 #' @param reverse.y whether reverse the Y axis, default(FALSE).
 #' @param text.pos the label position(left/right), default(middle).
+#' @param selecType choose the representative transcript to show("lt(longest transcript)" or "lcds(longest CDS)"), default(NULL).
+#' @param topN the top number representative transcript to be shown, default(1).
 #'
 #' @import tidyverse
 #' @import cowplot
@@ -141,13 +143,16 @@
 
 # global variables
 globalVariables(c('end', 'gene_id', 'gene_name','seqnames',
-                  'start', 'strand','transcript_id','transcript_name', 'type', 'vl_x1' ,'width', 'yPos','.env'))
+                  'start', 'strand','transcript_id','transcript_name',
+                  'type', 'vl_x1' ,'width', 'yPos','.env','cdslen','tlen'))
 
 # use_package("tidyverse", type = "depends")
 
 # define function
 trancriptVis <- function(gtfFile = NULL,
                          gene = NULL,
+                         selecType = NULL,
+                         topN = 1,
                          myTranscript = NULL,
                          Chr = NULL,
                          posStart = NULL,
@@ -208,6 +213,15 @@ trancriptVis <- function(gtfFile = NULL,
   #   sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id')
   # }
 
+  # load GTF file
+  if(is.character(gtfFile)){
+    gtfFile <- rtracklayer::import(gtfFile,format = "gtf") %>%
+      data.frame()
+  }else{
+    gtfFile <- gtfFile
+  }
+
+  # check colnames
   if("transcript_name" %in% colnames(gtfFile)){
     if("gene_name" %in% colnames(gtfFile)){
       sln <- c('seqnames','start','end','width','strand','type','gene_id','gene_name','transcript_id','transcript_name')
@@ -238,7 +252,7 @@ trancriptVis <- function(gtfFile = NULL,
         dplyr::filter(type != 'gene') %>%
         dplyr::select(sln)
     }else{
-      # filter gene by gene name
+      # filter gene by gene id
       myGene <- gtfFile %>%
         dplyr::select(sln) %>%
         dplyr::mutate(gene_name = gene_id) %>%
@@ -278,6 +292,51 @@ trancriptVis <- function(gtfFile = NULL,
     }) -> myData
   }
 
+  ##############################################################################
+  # select representive transcript
+  ##############################################################################
+  # function
+  filterRepTrans <- function(data,selecType,topN = 1){
+    tg <- data
+
+    # calculate transcript/CDS length
+    purrr::map_df(unique(tg$transcript_id),function(x){
+      tmp <- tg %>% dplyr::filter(transcript_id == x & type == "exon")
+      tmp2 <- tg %>% dplyr::filter(transcript_id == x & type == "CDS")
+      tranLength <- data.frame(tid = x,tlen = sum(tmp$width),cdslen = sum(tmp2$width))
+      return(tranLength)
+    }) -> lenInfo
+
+    # choose type
+    if(selecType == "lt"){
+      rankTran <- lenInfo %>%
+        dplyr::arrange(dplyr::desc(tlen),dplyr::desc(cdslen)) %>%
+        dplyr::slice_head(n = topN)
+      return(rankTran$tid)
+    }else if(selecType == "lcds"){
+      rankTran <- lenInfo %>%
+        dplyr::arrange(dplyr::desc(cdslen),dplyr::desc(tlen)) %>%
+        dplyr::slice_head(n = topN)
+      return(rankTran$tid)
+    }else{
+      print("Please choose 'lt' or 'lcds'!")
+    }
+  }
+
+  # get rep trans
+  if(!is.null(selecType)){
+    purrr::map_df(unique(myData$gene_id),function(x){
+      tmp <- myData %>% dplyr::filter(gene_id == x)
+      res <- tmp %>% dplyr::filter(transcript_id %in% filterRepTrans(tmp,selecType,topN))
+    }) -> myData
+
+  }else{
+    myData <- myData
+  }
+
+  ##############################################################################
+
+  ##############################################################################
   # get gene id
   gid <- unique(myData$gene_id)
 
