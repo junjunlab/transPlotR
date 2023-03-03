@@ -57,6 +57,7 @@
 #' @param text.pos the label position(left/right), default(middle).
 #' @param selecType choose the representative transcript to show("lt(longest transcript)" or "lcds(longest CDS)"), default(NULL).
 #' @param topN the top number representative transcript to be shown, default(1).
+#' @param show.legend whether show color legend, default(FALSE).
 #'
 #' @import tidyverse
 #' @import cowplot
@@ -163,6 +164,7 @@ trancriptVis <- function(gtfFile = NULL,
                          intronSize = 0.5,
                          arrowBreak = 0.15,
                          exonColorBy = NULL,
+                         show.legend = FALSE,
                          exonFill = '#333399',
                          circle = FALSE,
                          cicStart = pi,
@@ -547,7 +549,7 @@ trancriptVis <- function(gtfFile = NULL,
       ggplot2::geom_rect(ggplot2::aes_(xmin = ~start,xmax = ~end,
                                        ymin = ~ymin,ymax = ~ymax,
                                        fill = ~get(exonColorBy)),
-                         show.legend = F)
+                         show.legend = show.legend)
   }
 
   ##############################################################################

@@ -111,6 +111,8 @@
 \item{selecType}{choose the representative transcript to show("lt(longest transcript)" or "lcds(longest CDS)"), default(NULL).}
 
 \item{topN}{the top number representative transcript to be shown, default(1).}
+
+\item{show.legend}{whether show color legend, default(FALSE).}
 }
 \value{
 A ggplot object.
