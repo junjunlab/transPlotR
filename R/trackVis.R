@@ -115,8 +115,8 @@ trackVis <- function(bWData = NULL,
   }
 
   # panel background data
-  # dback <- data.frame(fileName = unique(regeion.bw$fileName))
-  dback <- regeion.bw[,7:ncol(regeion.bw)] %>% unique()
+  dback <- data.frame(fileName = unique(regeion.bw$fileName))
+  # dback <- regeion.bw[,7:ncol(regeion.bw)] %>% unique() %>% data.frame()
 
   # whether add background
   if(back.color == TRUE){
