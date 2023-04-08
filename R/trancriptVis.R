@@ -143,7 +143,7 @@
 #' cowplot::plot_grid(p1,p2,ncol = 2,align = 'hv')
 
 # global variables
-globalVariables(c('end', 'gene_id', 'gene_name','seqnames',
+globalVariables(c('end', 'gene_id', 'gene_name','seqnames',".",
                   'start', 'strand','transcript_id','transcript_name',
                   'type', 'vl_x1' ,'width', 'yPos','.env','cdslen','tlen'))
 

@@ -12,7 +12,8 @@ loadBigWig <- function(bwFile = NULL){
   # loop read bed
   purrr::map_df(1:length(bwFile),function(x){
     tmp <- rtracklayer::import.bw(bwFile[x]) %>%
-      data.frame()
+      data.frame() %>%
+      dplyr::select(-width,-strand)
 
     # sampe name
     spt <- strsplit(bwFile[x],split = "/|.bw|.bigwig") %>% unlist()

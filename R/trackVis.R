@@ -112,10 +112,13 @@ trackVis <- function(bWData = NULL,
   # whether change order
   if(!is.null(sample.order)){
     regeion.bw$fileName <- factor(regeion.bw$fileName,levels = sample.order)
+  }else{
+    regeion.bw$fileName <- factor(regeion.bw$fileName,levels = unique(regeion.bw$fileName))
   }
 
   # panel background data
-  dback <- data.frame(fileName = unique(regeion.bw$fileName))
+  dback <- data.frame(fileName = factor(unique(regeion.bw$fileName),
+                                        levels = levels(regeion.bw$fileName)))
   # dback <- regeion.bw[,7:ncol(regeion.bw)] %>% unique() %>% data.frame()
 
   # whether add background
@@ -288,9 +291,17 @@ trackVis <- function(bWData = NULL,
   # whether mark some regions
   if(!is.null(mark.region)){
     if(is.list(mark.region)){
-      mark.df <- data.frame(start = unlist(mark.region[[1]]),
+      mark.df.tmp <- data.frame(start = unlist(mark.region[[1]]),
                             end = unlist(mark.region[[2]]),
                             group = as.character(1:length(unlist(mark.region[[1]]))))
+
+      lapply(1:length(unique(regeion.bw$fileName)), function(x){
+        tmp <- mark.df.tmp
+        tmp$fileName <- unique(regeion.bw$fileName)[x]
+        return(tmp)
+      }) %>% do.call("rbind",.) %>% data.frame() -> mark.df
+
+      mark.df$fileName <- factor(mark.df$fileName,levels = levels(regeion.bw$fileName))
 
       # add mark
       p5 <- p4 +
@@ -365,6 +376,8 @@ trackVis <- function(bWData = NULL,
                             group = group,
                             x = range(regeion.bw$start)[1] + pos.label.ratio[1]*(range(regeion.bw$start)[2] - range(regeion.bw$start)[1]),
                             y = pos.label.ratio[2]*ylimit)
+
+    labelinfo$fileName <- factor(labelinfo$fileName,levels = levels(regeion.bw$fileName))
 
     # add text label
     if(is.null(label.color)){
